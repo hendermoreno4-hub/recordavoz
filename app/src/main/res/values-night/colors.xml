@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#141A2B</color>
+    <color name="card">#1F2740</color>
+    <color name="ink">#F1EDE4</color>
+    <color name="inkOnInk">#141A2B</color>
+    <color name="muted">#A3A8B8</color>
+    <color name="line">#2E3854</color>
+    <color name="accent">#F2B544</color>
+    <color name="accentInk">#1F2A44</color>
+    <color name="rec">#F06A5C</color>
+    <color name="ok">#5CC48A</color>
+</resources>

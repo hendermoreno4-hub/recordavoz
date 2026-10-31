@@ -1,0 +1,38 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.recordavoz.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.recordavoz.app'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    // Llave fija para que cada nueva versión se instale encima de la anterior
+    signingConfigs {
+        fija {
+            storeFile file('recordavoz.keystore')
+            storePassword 'recordavoz'
+            keyAlias 'recordavoz'
+            keyPassword 'recordavoz'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.fija
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        encoding 'UTF-8'
+    }
+}
