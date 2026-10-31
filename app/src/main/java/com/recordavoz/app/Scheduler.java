@@ -33,12 +33,37 @@ public final class Scheduler {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pi = pending(c, it.id, ACTION_REMIND);
         if (it.paused) { am.cancel(pi); return; }
+        setAlarm(c, it.next, pi);
+    }
+
+    /**
+     * Usa el mismo tipo de alarma que el reloj despertador: el sistema no la retrasa
+     * ni la bloquea por ahorro de batería, aunque la app esté cerrada.
+     */
+    static void setAlarm(Context c, long when, PendingIntent pi) {
+        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+        Intent open = new Intent(c, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent show = PendingIntent.getActivity(c, 1, open,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         try {
-            if (canExact(c)) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it.next, pi);
-            else am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it.next, pi);
+            am.setAlarmClock(new AlarmManager.AlarmClockInfo(when, show), pi);
         } catch (SecurityException e) {
-            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it.next, pi);
+            try {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, pi);
+            } catch (SecurityException e2) {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, pi);
+            }
         }
+    }
+
+    public static final String ACTION_TEST = "com.recordavoz.app.TEST";
+
+    /** Programa un aviso de prueba dentro de 1 minuto. */
+    public static void scheduleTest(Context c) {
+        Intent i = new Intent(c, ReminderReceiver.class).setAction(ACTION_TEST);
+        PendingIntent pi = PendingIntent.getBroadcast(c, 999_999, i,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        setAlarm(c, System.currentTimeMillis() + 60_000L, pi);
     }
 
     public static void cancel(Context c, long id) {

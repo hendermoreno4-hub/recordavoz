@@ -82,6 +82,12 @@ public class MainActivity extends Activity {
             if (Store.speak(this)) say("Recordatorio: así sonará tu recordatorio");
         });
 
+        findViewById(R.id.testLater).setOnClickListener(v -> {
+            Scheduler.scheduleTest(this);
+            live.setText("Prueba programada. Bloquea el teléfono o sal de la app: en 1 minuto te llega el aviso.");
+        });
+        findViewById(R.id.appSettings).setOnClickListener(v -> openAppSettings());
+
         CheckBox speak = findViewById(R.id.optSpeak);
         speak.setChecked(Store.speak(this));
         speak.setOnCheckedChangeListener((b, on) -> Store.setSpeak(this, on));
@@ -386,6 +392,37 @@ public class MainActivity extends Activity {
                 }
             });
         }
+        String hint = brandHint();
+        if (hint != null && !getSharedPreferences("recordavoz", MODE_PRIVATE).getBoolean("brandHintDone", false)) {
+            addBanner("Un ajuste más para tu teléfono", hint, "Abrir", v -> {
+                getSharedPreferences("recordavoz", MODE_PRIVATE).edit().putBoolean("brandHintDone", true).apply();
+                openAppSettings();
+            });
+        }
+    }
+
+    private void openAppSettings() {
+        try {
+            startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:" + getPackageName())));
+        } catch (ActivityNotFoundException ignored) {
+        }
+    }
+
+    /** Teléfonos que cierran las apps en segundo plano y necesitan un ajuste extra. */
+    private String brandHint() {
+        String b = Build.MANUFACTURER == null ? "" : Build.MANUFACTURER.toLowerCase(Locale.ROOT);
+        if (b.contains("xiaomi") || b.contains("redmi") || b.contains("poco"))
+            return "En Xiaomi: activa «Inicio automático» y en «Ahorro de batería» elige «Sin restricciones».";
+        if (b.contains("samsung"))
+            return "En Samsung: en «Batería» elige «Sin restricciones» para que no la duerma.";
+        if (b.contains("huawei") || b.contains("honor"))
+            return "En Huawei: en «Inicio de apps» desactiva «Gestionar automáticamente» y permite todo.";
+        if (b.contains("oppo") || b.contains("realme") || b.contains("vivo") || b.contains("oneplus"))
+            return "Activa «Inicio automático» y permite la actividad en segundo plano.";
+        if (b.contains("tecno") || b.contains("infinix") || b.contains("itel"))
+            return "Activa «Inicio automático» y quita la app de la limpieza de memoria.";
+        return null;
     }
 
     private void addBanner(String title, String body, String action, View.OnClickListener l) {

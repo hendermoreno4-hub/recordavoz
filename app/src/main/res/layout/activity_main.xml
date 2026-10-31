@@ -234,11 +234,29 @@
                         style="@style/SmallButton" />
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/test"
-                    style="@style/SmallButton"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:text="Probar aviso" />
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/test"
+                        style="@style/SmallButton"
+                        android:text="Probar ahora" />
+
+                    <Button
+                        android:id="@+id/testLater"
+                        style="@style/SmallButton"
+                        android:layout_marginTop="10dp"
+                        android:text="Probar en 1 min (bloquea el teléfono)" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/appSettings"
+                    style="@style/SmallButton"
+                    android:layout_marginTop="10dp"
+                    android:text="Abrir ajustes de la app (batería e inicio automático)" />
 
                 <TextView
                     android:layout_width="match_parent"

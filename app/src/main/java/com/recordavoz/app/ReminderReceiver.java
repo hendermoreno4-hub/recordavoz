@@ -23,10 +23,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Se ejecuta cuando toca un recordatorio, aunque la app esté cerrada. */
 public class ReminderReceiver extends BroadcastReceiver {
-    static final String CHANNEL = "recordatorios";
+    static final String CHANNEL = "avisos";
 
     @Override
     public void onReceive(Context c, Intent intent) {
+        if (Scheduler.ACTION_TEST.equals(intent.getAction())) {
+            String t = "Prueba: así te llegarán los recordatorios";
+            show(c, 999_999, t, false);
+            MainActivity.onReminder(t);
+            if (Store.speak(c)) speak(c, t, goAsync());
+            return;
+        }
+
         long id = intent.getLongExtra(Scheduler.EXTRA_ID, -1);
         List<Store.Item> items = Store.load(c);
         Store.Item it = Store.find(items, id);
@@ -63,6 +71,8 @@ public class ReminderReceiver extends BroadcastReceiver {
         if (nm.getNotificationChannel(CHANNEL) != null) return;
         NotificationChannel ch = new NotificationChannel(CHANNEL, "Recordatorios", NotificationManager.IMPORTANCE_HIGH);
         ch.setDescription("Avisos de tus recordatorios");
+        ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        ch.setBypassDnd(false);
         ch.enableVibration(true);
         ch.setVibrationPattern(new long[]{0, 250, 120, 250});
         ch.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
@@ -85,7 +95,9 @@ public class ReminderReceiver extends BroadcastReceiver {
                 .setContentTitle("Recordatorio")
                 .setContentText(text)
                 .setStyle(new Notification.BigTextStyle().bigText(text))
-                .setCategory(Notification.CATEGORY_REMINDER)
+                .setCategory(Notification.CATEGORY_ALARM)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setShowWhen(true)
                 .setContentIntent(openPi)
                 .setAutoCancel(true);
         if (withDone) {
